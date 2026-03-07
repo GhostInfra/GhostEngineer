@@ -1,0 +1,39 @@
+{
+  "name": "ghostengineer",
+  "version": "1.0.0",
+  "description": "AI-powered tool that analyzes GitHub repositories and generates architecture insights, documentation, and onboarding guides.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rajkoli145/GhostEngineer.git"
+  },
+  "keywords": ["ai", "github", "repository-analysis", "documentation"],
+  "author": "Rajkoli145",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Rajkoli145/GhostEngineer/issues"
+  },
+  "homepage": "https://github.com/Rajkoli145/GhostEngineer#readme",
+  "dependencies": {
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}
