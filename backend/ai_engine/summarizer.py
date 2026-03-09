@@ -50,7 +50,8 @@ def summarize_repo(structure: Dict, file_contents: List[Dict]) -> str:
         # 2. Prepare the file contents string (formatted as path: content)
         files_str = ""
         for file in file_contents:
-            files_str += f"--- FILE: {file['path']} ---\n"
+            file_type_label = f" ({file.get('type', 'full').upper()})" if file.get('type') == 'skeleton' else ""
+            files_str += f"--- FILE: {file['path']}{file_type_label} ---\n"
             files_str += f"{file['content']}\n\n"
 
         # 3. Format the prompt
