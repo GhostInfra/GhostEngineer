@@ -4,6 +4,9 @@ File Extractor - Extracts and reads file contents from a repository.
 
 import os
 from typing import Dict, List, Optional
+from backend.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 # Default allowed extensions for text-based source files
 DEFAULT_ALLOWED_EXTENSIONS = {
@@ -23,6 +26,8 @@ IGNORE_DIRS = {
 MAX_FILE_SIZE = 50 * 1024
 
 
+from backend.analyzer.skeletonizer import skeletonize
+
 def extract_files(
     repo_path: str, 
     extensions: Optional[List[str]] = None, 
@@ -30,21 +35,21 @@ def extract_files(
 ) -> List[Dict]:
     """
     Extract file contents from a repository, filtered by extension and size.
+    Large files are 'skeletonized' (summarized) instead of skipped.
 
     Args:
         repo_path: Path to the root of the cloned repository.
-        extensions: Optional list of file extensions to include (e.g., ['.py', '.ts']).
-        max_size: Maximum file size in bytes to read.
+        extensions: Optional list of file extensions to include.
+        max_size: Maximum file size in bytes to read fully.
 
     Returns:
-        A list of dicts with 'path' and 'content' keys.
+        A list of dicts with 'path', 'content', and 'type' keys.
     """
     allowed_extensions = set(extensions) if extensions else DEFAULT_ALLOWED_EXTENSIONS
     repo_path = os.path.abspath(repo_path)
     extracted_files = []
 
     for root, dirs, files in os.walk(repo_path):
-        # In-place modification of dirs to skip ignored directories
         dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
 
         for file in files:
@@ -52,24 +57,31 @@ def extract_files(
             if ext.lower() in allowed_extensions:
                 file_path = os.path.join(root, file)
                 
-                # Check file size
                 try:
                     stats = os.stat(file_path)
-                    if stats.st_size > max_size:
-                        continue
-                        
+                    
                     # Read content
                     with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                         content = f.read()
-                        
+                    
                     # Store relative path for cleaner output
                     relative_path = os.path.relpath(file_path, repo_path)
+                    
+                    if stats.st_size > max_size:
+                        # Large file: extract skeleton
+                        content = skeletonize(content, file)
+                        file_type = "skeleton"
+                        logger.info(f"Skeletonized large file: {relative_path} ({stats.st_size} bytes)")
+                    else:
+                        file_type = "full"
+                        
                     extracted_files.append({
                         "path": relative_path,
-                        "content": content
+                        "content": content,
+                        "type": file_type
                     })
                 except Exception as e:
-                    # Skip files that can't be read (e.g., permissions etc)
+                    logger.error(f"Error reading {file_path}: {e}")
                     continue
 
     return extracted_files
