@@ -52,20 +52,22 @@ def analyze_repository(repo_url: str, bypass_cache: bool = False) -> dict:
         # 1. Clone the repo
         repo_path = clone_repo(repo_url, temp_dir)
 
-        # TODO: Implement the rest of the pipeline once modules are ready
         # 2. Parse structure
-        # structure = parse_structure(repo_path)
+        structure = parse_structure(repo_path)
+
+        # TODO: Implement the rest of the pipeline once modules are ready
         # 3. Extract files
         # files = extract_files(repo_path)
         # 4. Summarize with AI
         # result = summarize_repo(structure, files)
 
-        # Placeholder result until full pipeline is implemented
+        # Updated result with structure
         result = {
             "status": "success",
             "repo_url": repo_url,
-            "message": "Repository cloned successfully. Analysis modules coming soon.",
-            "path": repo_path
+            "message": "Repository analyzed successfully.",
+            "structure": structure,
+            "path": repo_path  # Note: Path is in a temp dir that will be deleted after this 'with' block
         }
 
         # Cache the result before returning
