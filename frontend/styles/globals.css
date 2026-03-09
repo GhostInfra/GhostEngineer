@@ -145,11 +145,18 @@ pre {
   animation: pulse 1.5s infinite;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
+.error-message {
+  margin-top: 40px;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 24px;
 }
+
+.text-red-400 { color: #f87171; }
+.text-red-500 { color: #ef4444; }
+.bg-red-500\/5 { background-color: rgba(239, 68, 68, 0.05); }
+.border-l-red-500 { border-left-color: #ef4444; }
 
 /* Add a background ambient light */
 .ambient-light {

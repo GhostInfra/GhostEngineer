@@ -58,18 +58,17 @@ def analyze_repository(repo_url: str, bypass_cache: bool = False) -> dict:
         # 3. Extract files
         files = extract_files(repo_path)
 
-        # TODO: Implement step 4 once AI summarizer is ready
         # 4. Summarize with AI
-        # result = summarize_repo(structure, files)
+        ai_summary = summarize_repo(structure, files)
 
-        # Updated result with structure and file count
+        # Updated result with structure, files, and AI summary
         result = {
             "status": "success",
             "repo_url": repo_url,
             "message": "Repository analyzed successfully.",
             "structure": structure,
             "file_count": len(files),
-            "files": files[:5],  # Just return first 5 for now to avoid massive payloads
+            "ai_summary": ai_summary,
             "path": repo_path
         }
 

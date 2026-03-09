@@ -58,6 +58,14 @@ ghostengineer/
 | Frontend | Next.js, React   |
 | Styling  | CSS              |
 
+## Analysis Pipeline
+
+1.  **Repo Cloner**: Shallow clones repositories to unique temporary directories.
+2.  **Structure Parser**: Recursively generates a project tree while ignoring noise (`node_modules`, `.git`, etc.).
+3.  **File Extractor**: Extracts source code content for AI processing.
+    - ⚡ **Performance Note**: To ensure stability and speed, there is a **50KB per-file limit**. Files larger than this are skipped to optimize AI context usage and processing time.
+4.  **AI Engine**: (In Progress) Generates human-readable architectural insights and summaries.
+
 ## Getting Started
 
 ```bash
