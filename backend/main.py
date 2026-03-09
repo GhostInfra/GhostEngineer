@@ -8,6 +8,9 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from backend.services.analysis_service import analyze_repository
 from backend.utils.logger import get_logger
