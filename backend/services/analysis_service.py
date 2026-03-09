@@ -5,6 +5,9 @@ Uses Redis cache to avoid re-analyzing the same repository repeatedly,
 since cloning, parsing, and LLM calls are expensive operations.
 """
 
+import tempfile
+from typing import Optional
+
 from backend.analyzer.repo_cloner import clone_repo
 from backend.analyzer.structure_parser import parse_structure
 from backend.analyzer.file_extractor import extract_files
@@ -42,18 +45,30 @@ def analyze_repository(repo_url: str, bypass_cache: bool = False) -> dict:
     # Run the full pipeline
     logger.info(f"Starting fresh analysis for {repo_url}")
 
-    # TODO: Implement end-to-end analysis pipeline
-    # 1. Clone the repo
-    # repo_path = clone_repo(repo_url, target_dir)
-    # 2. Parse structure
-    # structure = parse_structure(repo_path)
-    # 3. Extract files
-    # files = extract_files(repo_path)
-    # 4. Summarize with AI
-    # result = summarize_repo(structure, files)
+    # Use a temporary directory for cloning
+    with tempfile.TemporaryDirectory() as temp_dir:
+        logger.info(f"Created temporary directory for {repo_url}: {temp_dir}")
 
-    raise NotImplementedError("analysis_service.analyze_repository is not yet implemented")
+        # 1. Clone the repo
+        repo_path = clone_repo(repo_url, temp_dir)
 
-    # Cache the result before returning
-    # cache.set(repo_url, result)
-    # return result
+        # TODO: Implement the rest of the pipeline once modules are ready
+        # 2. Parse structure
+        # structure = parse_structure(repo_path)
+        # 3. Extract files
+        # files = extract_files(repo_path)
+        # 4. Summarize with AI
+        # result = summarize_repo(structure, files)
+
+        # Placeholder result until full pipeline is implemented
+        result = {
+            "status": "success",
+            "repo_url": repo_url,
+            "message": "Repository cloned successfully. Analysis modules coming soon.",
+            "path": repo_path
+        }
+
+        # Cache the result before returning
+        cache.set(repo_url, result)
+
+        return result
