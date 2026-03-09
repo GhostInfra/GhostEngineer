@@ -11,16 +11,27 @@ export default function Home() {
     set_loading(true);
     set_result(null);
     
-    // Simulate API call
-    setTimeout(() => {
-      set_result(JSON.stringify({
-        status: "success",
-        repo_url: url,
-        message: "Repository analysis mock - actual logic coming soon!",
-        timestamp: new Date().toISOString()
-      }, null, 2));
+    try {
+      const response = await fetch("http://localhost:8000/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ repo_url: url }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to analyze repository");
+      }
+
+      const data = await response.json();
+      set_result(JSON.stringify(data, null, 2));
+    } catch (error: any) {
+      set_result(`Error: ${error.message}`);
+    } finally {
       set_loading(false);
-    }, 2000);
+    }
   };
 
   return (

@@ -2,17 +2,74 @@
 File Extractor - Extracts and reads file contents from a repository.
 """
 
+import os
+from typing import Dict, List, Optional
 
-def extract_files(repo_path: str, extensions: list[str] | None = None) -> list[dict]:
+# Default allowed extensions for text-based source files
+DEFAULT_ALLOWED_EXTENSIONS = {
+    '.py', '.js', '.ts', '.tsx', '.jsx', '.html', '.css', 
+    '.md', '.json', '.yaml', '.yml', '.txt', '.sh', '.go', '.rs'
+}
+
+# Directories to ignore (sync with structure_parser.py)
+IGNORE_DIRS = {
+    ".git", ".github", ".vscode", ".idea", 
+    "node_modules", "bower_components",
+    "venv", ".venv", "env", "__pycache__",
+    "dist", "build", "out", ".next", "target"
+}
+
+# Maximum file size to read (50KB by default) to avoid memory issues
+MAX_FILE_SIZE = 50 * 1024
+
+
+def extract_files(
+    repo_path: str, 
+    extensions: Optional[List[str]] = None, 
+    max_size: int = MAX_FILE_SIZE
+) -> List[Dict]:
     """
-    Extract file contents from a repository, optionally filtered by extension.
+    Extract file contents from a repository, filtered by extension and size.
 
     Args:
         repo_path: Path to the root of the cloned repository.
         extensions: Optional list of file extensions to include (e.g., ['.py', '.ts']).
+        max_size: Maximum file size in bytes to read.
 
     Returns:
         A list of dicts with 'path' and 'content' keys.
     """
-    # TODO: Implement file extraction logic
-    raise NotImplementedError("file_extractor.extract_files is not yet implemented")
+    allowed_extensions = set(extensions) if extensions else DEFAULT_ALLOWED_EXTENSIONS
+    repo_path = os.path.abspath(repo_path)
+    extracted_files = []
+
+    for root, dirs, files in os.walk(repo_path):
+        # In-place modification of dirs to skip ignored directories
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+
+        for file in files:
+            _, ext = os.path.splitext(file)
+            if ext.lower() in allowed_extensions:
+                file_path = os.path.join(root, file)
+                
+                # Check file size
+                try:
+                    stats = os.stat(file_path)
+                    if stats.st_size > max_size:
+                        continue
+                        
+                    # Read content
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                        
+                    # Store relative path for cleaner output
+                    relative_path = os.path.relpath(file_path, repo_path)
+                    extracted_files.append({
+                        "path": relative_path,
+                        "content": content
+                    })
+                except Exception as e:
+                    # Skip files that can't be read (e.g., permissions etc)
+                    continue
+
+    return extracted_files
