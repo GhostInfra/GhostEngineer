@@ -1,95 +1,192 @@
 import Head from 'next/head';
-import RepoInput from '../components/RepoInput';
-import ResultView from '../components/ResultView';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Ghost } from 'lucide-react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Ghost, Brain, FolderTree, BarChart3, ArrowRight, Sparkles, GitBranch, Zap } from 'lucide-react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
-export default function Home() {
-  const [result, set_result] = useState<any>(null);
-  const [loading, set_loading] = useState(false);
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.15, duration: 0.6, ease: 'easeOut' },
+  }),
+};
 
-  const handle_submit = async (url: string) => {
-    set_loading(true);
-    set_result(null);
-    
-    try {
-      const response = await fetch("http://localhost:8000/api/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ repo_url: url }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || data.detail || "Failed to analyze repository");
-      }
-
-      set_result(data);
-    } catch (error: any) {
-      set_result({
-        status: "error",
-        message: error.message
-      });
-    } finally {
-      set_loading(false);
-    }
-  };
-
+export default function LandingPage() {
   return (
-    <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <>
       <Head>
-        <title>GhostEngineer | AI Repo Analyzer</title>
+        <title>GhostEngineer — AI-Powered Codebase Intelligence</title>
+        <meta name="description" content="Understand any codebase in seconds. GhostEngineer analyzes GitHub repositories and generates architecture insights, structure maps, and developer guides instantly." />
       </Head>
 
-      <div className="ambient-light" />
-      
+      <Navbar />
+
       {/* Decorative top gradient */}
       <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '4px',
-        background: 'linear-gradient(90deg, transparent, var(--primary), transparent)',
-        opacity: 0.5,
-        zIndex: 100
+        position: 'fixed', top: 0, left: 0, right: 0, height: '3px',
+        background: 'linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent)',
+        zIndex: 200
       }} />
 
-      <header style={{ paddingTop: '5rem', paddingBottom: '3rem', width: '100%' }}>
-        <motion.h1 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginBottom: '1rem' }}
-        >
-          <Ghost size={56} style={{ color: 'var(--primary)' }} className="animate-pulse" />
-          <span className="gradient-text">GhostEngineer</span>
-        </motion.h1>
-        <motion.p 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          style={{ textAlign: 'center', margin: '0 auto', maxWidth: '600px', color: '#888', fontSize: '1.2rem', lineHeight: '1.6' }}
-        >
-          Architectural intelligence for your codebase. Summarize repos, map structures, and generate developer guides instantly.
-        </motion.p>
-      </header>
+      {/* Ambient background glows */}
+      <div className="landing-glow glow-1" />
+      <div className="landing-glow glow-2" />
 
-      <main style={{ width: '100%', paddingBottom: '96px', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
-        <RepoInput onSubmit={handle_submit} isLoading={loading} />
-        
-        <AnimatePresence>
-          {result && (
-            <div style={{ width: '100%' }}>
-              <ResultView result={result} loading={loading} />
-            </div>
-          )}
-        </AnimatePresence>
-      </main>
-    </div>
+      {/* =================== HERO =================== */}
+      <section className="hero-section">
+        <motion.div
+          className="hero-content"
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
+        >
+          <motion.div variants={fadeUp} custom={0} className="hero-ghost">
+            <Ghost size={80} />
+          </motion.div>
+
+          <motion.h1 variants={fadeUp} custom={2} className="hero-title">
+            Understand any codebase<br />
+            <span className="gradient-text">in seconds</span>
+          </motion.h1>
+
+          <motion.p variants={fadeUp} custom={3} className="hero-subtitle">
+            AI-powered architecture analysis for developers. Summarize repos,
+            map structures, and generate developer guides — instantly.
+          </motion.p>
+
+          <motion.div variants={fadeUp} custom={4} className="hero-buttons">
+            <Link href="/analyze" className="btn-primary">
+              Try for Free <ArrowRight size={18} />
+            </Link>
+            <a
+              href="https://github.com/Rajkoli145/GhostEngineer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost"
+            >
+              <GitBranch size={18} />
+              View on GitHub
+            </a>
+          </motion.div>
+
+          <motion.p variants={fadeUp} custom={5} className="hero-note">
+            No signup required · Analyze any public repo
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* =================== FEATURES =================== */}
+      <section id="features" className="section">
+        <motion.div
+          className="section-header"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeUp}
+        >
+          <span className="section-tag">Features</span>
+          <h2>Everything you need to understand code</h2>
+          <p className="section-desc">Three powerful views that give you complete visibility into any repository.</p>
+        </motion.div>
+
+        <div className="features-grid">
+          {[
+            {
+              icon: Brain,
+              title: 'AI Insights',
+              desc: 'Get comprehensive architecture explanations, dependency maps, and onboarding guides generated by Gemini AI.',
+              color: '#8b5cf6',
+            },
+            {
+              icon: FolderTree,
+              title: 'Structure View',
+              desc: 'Interactive, collapsible file tree that maps the logical topology of any repository at a glance.',
+              color: '#22d3ee',
+            },
+            {
+              icon: BarChart3,
+              title: 'Stats Dashboard',
+              desc: 'Extraction metadata, file counts, and analysis integrity reports — all in a unified glass dashboard.',
+              color: '#4ade80',
+            },
+          ].map((feature, i) => (
+            <motion.div
+              key={feature.title}
+              className="feature-card glass-card"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={fadeUp}
+              custom={i}
+            >
+              <div className="feature-icon" style={{ background: `${feature.color}15`, color: feature.color }}>
+                <feature.icon size={28} />
+              </div>
+              <h3>{feature.title}</h3>
+              <p>{feature.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* =================== HOW IT WORKS =================== */}
+      <section id="how-it-works" className="section">
+        <motion.div
+          className="section-header"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeUp}
+        >
+          <span className="section-tag">How It Works</span>
+          <h2>From URL to architecture in three steps</h2>
+        </motion.div>
+
+        <div className="steps-container">
+          {[
+            { step: '01', title: 'Paste a GitHub URL', desc: 'Drop any public repository link into the analyzer.' },
+            { step: '02', title: 'AI scans the codebase', desc: 'GhostEngineer clones, parses, and extracts key files.' },
+            { step: '03', title: 'Get architecture insights', desc: 'Receive AI-generated summaries, structure maps, and stats.' },
+          ].map((item, i) => (
+            <motion.div
+              key={item.step}
+              className="step-card"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={fadeUp}
+              custom={i}
+            >
+              <div className="step-number">{item.step}</div>
+              <h3>{item.title}</h3>
+              <p>{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* =================== CTA BANNER =================== */}
+      <section className="cta-section">
+        <motion.div
+          className="cta-content"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeUp}
+        >
+          <Zap size={32} style={{ color: 'var(--accent)' }} />
+          <h2>Ready to explore your codebase?</h2>
+          <p>Start analyzing repositories for free. No signup required.</p>
+          <Link href="/analyze" className="btn-primary btn-lg">
+            Launch Analyzer <ArrowRight size={20} />
+          </Link>
+        </motion.div>
+      </section>
+
+      <Footer />
+    </>
   );
 }
