@@ -55,10 +55,10 @@ export default function Navbar() {
           {!isLoading && (
             isAuthenticated ? (
               <>
-                <span className="navbar-user">
+                <Link href="/dashboard" className="navbar-user" style={{ textDecoration: 'none' }}>
                   <User size={14} />
                   {user?.email?.split('@')[0]}
-                </span>
+                </Link>
                 <button onClick={logout} className="navbar-link" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <LogOut size={14} />
                   Log Out
