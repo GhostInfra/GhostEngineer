@@ -1,13 +1,17 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import RepoInput from '../components/RepoInput';
 import ResultView from '../components/ResultView';
+import Navbar from '../components/Navbar';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Ghost } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
-export default function Home() {
+export default function AnalyzePage() {
   const [result, set_result] = useState<any>(null);
   const [loading, set_loading] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handle_submit = async (url: string) => {
     set_loading(true);
@@ -28,6 +32,21 @@ export default function Home() {
         throw new Error(data.message || data.detail || "Failed to analyze repository");
       }
 
+      // Save to analysis history in localStorage
+      try {
+        const history = JSON.parse(localStorage.getItem('ghost_history') || '[]');
+        const entry = {
+          repo_url: url,
+          repo_name: data.repo_name || url.split('/').pop()?.replace('.git', '') || 'Unknown',
+          analyzed_at: new Date().toISOString(),
+          file_count: data.file_count || 0,
+        };
+        // avoid duplicates, keep latest 10
+        const filtered = history.filter((h: any) => h.repo_url !== url);
+        filtered.unshift(entry);
+        localStorage.setItem('ghost_history', JSON.stringify(filtered.slice(0, 10)));
+      } catch {}
+
       set_result(data);
     } catch (error: any) {
       set_result({
@@ -40,56 +59,62 @@ export default function Home() {
   };
 
   return (
-    <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <>
       <Head>
-        <title>GhostEngineer | AI Repo Analyzer</title>
+        <title>Analyze — GhostEngineer</title>
+        <meta name="description" content="Paste any GitHub repository URL and get instant AI-powered architecture analysis, structure maps, and developer insights." />
       </Head>
 
+      <Navbar />
+
       <div className="ambient-light" />
-      
-      {/* Decorative top gradient */}
+
+      {/* Top gradient bar */}
       <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '4px',
-        background: 'linear-gradient(90deg, transparent, var(--primary), transparent)',
-        opacity: 0.5,
-        zIndex: 100
+        position: 'fixed', top: 0, left: 0, right: 0, height: '3px',
+        background: 'linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent)',
+        zIndex: 200
       }} />
 
-      <header style={{ paddingTop: '5rem', paddingBottom: '3rem', width: '100%' }}>
-        <motion.h1 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginBottom: '1rem' }}
-        >
-          <Ghost size={56} style={{ color: 'var(--primary)' }} className="animate-pulse" />
-          <span className="gradient-text">GhostEngineer</span>
-        </motion.h1>
-        <motion.p 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          style={{ textAlign: 'center', margin: '0 auto', maxWidth: '600px', color: '#888', fontSize: '1.2rem', lineHeight: '1.6' }}
-        >
-          Architectural intelligence for your codebase. Summarize repos, map structures, and generate developer guides instantly.
-        </motion.p>
-      </header>
+      <div className="analyze-page">
+        <main className="analyze-main">
+          <motion.div
+            className="analyze-header"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="analyze-title">Analyze a Repository</h2>
+            <p className="analyze-subtitle">Paste any public GitHub URL to get started</p>
+          </motion.div>
 
-      <main style={{ width: '100%', paddingBottom: '96px', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
-        <RepoInput onSubmit={handle_submit} isLoading={loading} />
-        
-        <AnimatePresence>
-          {result && (
-            <div style={{ width: '100%' }}>
-              <ResultView result={result} loading={loading} />
-            </div>
+          <RepoInput onSubmit={handle_submit} isLoading={loading} />
+
+          {/* Signup prompt banner (only for non-authenticated users) */}
+          {!isAuthenticated && (
+            <motion.div
+              className="signup-banner"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              <Sparkles size={18} />
+              <span>Sign up to save your analysis history and unlock premium features</span>
+              <Link href="/signup" className="signup-banner-cta">
+                Get Started <ArrowRight size={14} />
+              </Link>
+            </motion.div>
           )}
-        </AnimatePresence>
-      </main>
-    </div>
+          
+          <AnimatePresence>
+            {result && (
+              <div style={{ width: '100%' }}>
+                <ResultView result={result} loading={loading} />
+              </div>
+            )}
+          </AnimatePresence>
+        </main>
+      </div>
+    </>
   );
 }
